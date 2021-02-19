@@ -1,0 +1,19 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/Cube.obj-9e6e5fa112c81bc6b80cb2382bde78ed.mesh"
+
+[deps]
+
+files=[ "res://.import/Cube.obj-9e6e5fa112c81bc6b80cb2382bde78ed.mesh" ]
+
+source_file="res://Assets/Cube.obj"
+dest_files=[ "res://.import/Cube.obj-9e6e5fa112c81bc6b80cb2382bde78ed.mesh", "res://.import/Cube.obj-9e6e5fa112c81bc6b80cb2382bde78ed.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh=true
