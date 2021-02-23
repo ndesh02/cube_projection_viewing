@@ -137,7 +137,7 @@ public class SimplifiedMesh
 
                 // Check if the planes are parallel (have the same normal)
                 // Due to small variations, a tolerance is used to compare normals
-                if (isSame(faceANomral.x, faceBNomral.x) && isSame(faceANomral.y, faceBNomral.y) && isSame(faceANomral.z, faceBNomral.z))
+                if (MatrixSolver.compareDoubles(faceANomral.x, faceBNomral.x, TOLERANCE) && MatrixSolver.compareDoubles(faceANomral.y, faceBNomral.y, TOLERANCE) && MatrixSolver.compareDoubles(faceANomral.z, faceBNomral.z, TOLERANCE))
                 {
                     // Check if any of the edges are the same by mapping them from mdt indices to local (unique) indices
                     for (int edgeA = 0; edgeA < 3; edgeA++)
@@ -166,10 +166,5 @@ public class SimplifiedMesh
                 displayedEdges.Add(edgePairs[index]);
             }
         }
-    }
-
-    public bool isSame(float numA, float numB)
-    {
-        return (Math.Abs(numA - numB) < TOLERANCE);
     }
 }

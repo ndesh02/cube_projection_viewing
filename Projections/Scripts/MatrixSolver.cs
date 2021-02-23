@@ -4,7 +4,7 @@ using System;
 public class MatrixSolver : Node
 {
 
-    private const float TOLERANCE = 0.001f;
+    private const double TOLERANCE = 0.001;
     private static int numOfIterations;
     public override void _Ready()
     {
@@ -13,9 +13,9 @@ public class MatrixSolver : Node
         //solveMatrix(matrix.GetLength(0), matrix.GetLength(1), matrix);
     }
 
-    private static void swapRows(int columns, float[,] matrix, int rowA, int rowB)
+    private static void swapRows(int columns, double[,] matrix, int rowA, int rowB)
     {
-        float temp = 0;
+        double temp = 0;
         for (int col = 0; col < columns; col++)
         {
             temp = matrix[rowA, col];
@@ -24,7 +24,7 @@ public class MatrixSolver : Node
         }
     }
 
-    private static void divideRow(int columns, float[,] matrix, int row, float divisor)
+    private static void divideRow(int columns, double[,] matrix, int row, double divisor)
     {
         for (int col = 0; col < columns; col++)
         {
@@ -33,7 +33,7 @@ public class MatrixSolver : Node
     }
 
     // Adds coefficient * rowB to rowA
-    private static void addRowMultiple(int columns, float[,] matrix, int rowA, int rowB, float coefficient)
+    private static void addRowMultiple(int columns, double[,] matrix, int rowA, int rowB, double coefficient)
     {
         for (int col = 0; col < columns; col++)
         {
@@ -42,7 +42,7 @@ public class MatrixSolver : Node
     }
 
     // Takes an augmented matrix to (almost) RREF (with leading entries on the main diagonal) and returns whether it has a unique solution
-    public static bool solveMatrix(int rows, int columns, float[,] matrix, bool augmented)
+    public static bool solveMatrix(int rows, int columns, double[,] matrix, bool augmented)
     {
         bool isUnique = true;
 
@@ -92,9 +92,20 @@ public class MatrixSolver : Node
 
         if (augmented)
         {
-            for (int entry = 0; entry < numOfIterations; entry++)
+            // Check nonzero entries on the main diagonal
+            for (int coefficientEntry = 0; coefficientEntry < numOfIterations; coefficientEntry++)
             {
-                if (Math.Abs(matrix[entry, entry]) < TOLERANCE)
+                if ((compareDoubles(matrix[coefficientEntry, coefficientEntry], 0, TOLERANCE)) && (compareDoubles(matrix[coefficientEntry, columns - 1], 0, TOLERANCE)))
+                {
+                    isUnique = false;
+                    break;
+                }
+            }
+
+            // Check for leading entries in constant matrix
+            for (int constantEntry = numOfIterations; constantEntry < rows; constantEntry++)
+            {
+                if (!compareDoubles(matrix[constantEntry, columns - 1], 0, TOLERANCE))
                 {
                     isUnique = false;
                     break;
@@ -106,7 +117,13 @@ public class MatrixSolver : Node
         return isUnique;
     }
 
-    public static void convertTo3x3(Vector3 column1, Vector3 column2, Vector3 column3, float[,] matrix)
+    // Compare float with tolerance
+    public static bool compareDoubles(double numA, double numB, double tolerace)
+    {
+        return (Math.Abs(numA - numB) < tolerace);
+    }
+
+    public static void convertTo3x3(Vector3 column1, Vector3 column2, Vector3 column3, double[,] matrix)
     {
         matrix[0, 0] = column1.x;
         matrix[1, 0] = column1.y;
@@ -119,7 +136,14 @@ public class MatrixSolver : Node
         matrix[2, 2] = column3.z;
     }
 
-    public static void printMatrix(int rows, int columns, float[,] matrix)
+    public static void addVector3Col(int columnNum, Vector3 column, double[,] matrix)
+    {
+        matrix[0, columnNum] = column.x;
+        matrix[1, columnNum] = column.y;
+        matrix[2, columnNum] = column.z;
+    }
+
+    public static void printMatrix(int rows, int columns, double[,] matrix)
     {
         for (int row = 0; row < rows; row++)
         {
