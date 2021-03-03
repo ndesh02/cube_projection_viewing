@@ -6,69 +6,85 @@ public class ProjectionRoot : Node2D
 {
     private const int SCREEN_WIDTH = 681;
     private const int SCREEN_HEIGHT = 705;
-    private const int POINT_RADIUS = 2;
-    private const int LINE_WIDTH = 4;
+    private const float POINT_RADIUS = 1.5f;
+    private const float HIDDEN_POINT_RADIUS = 1f;
+    private const float LINE_WIDTH = 3f;
+    private const float HIDDEN_LINE_WIDTH = 2f;
     private Color RED = new Color(1, 0, 0);
     private Color WHITE = new Color(1, 1, 1);
     private Color GRAY = new Color((float)77/255, (float)77/255, (float)77/255);
-    private Rect2 BACKGROUND = new Rect2(0, 0, new Vector2(SCREEN_WIDTH, SCREEN_HEIGHT));
-    private List<Vector2> vertices = new List<Vector2>();
+    private Rect2 Background = new Rect2(0, 0, new Vector2(SCREEN_WIDTH, SCREEN_HEIGHT));
+    private List<(Vector2, bool)> displayedVertices = new List<(Vector2, bool)>();
+    private List<(Vector2, Vector2, bool)> displayedEdges = new List<(Vector2, Vector2, bool)>();
+    private float zoomFactor = 1;
 
-    // Used to store the SimplifiedMesh vertex indices that correspond to local (2D) points
-    // Maps from local index to SimplifiedMesh vertex
-    private List<int> vertexIndices = new List<int>();
-
-    // List of tuples for storing edge pair with local indices
-    private List<(int, int)> edgePairs = new List<(int, int)>();
-
-    public void addPoint(Vector2 pos, int index)
+    public void AddPoint(Vector2 vertex, bool isShown)
     {
-        vertices.Add(pos);
-        vertexIndices.Add(index);
+        displayedVertices.Add((vertex, isShown));
         Update();
     }
 
-    public void addEdge(int pointA, int pointB)
+    private void DrawPoints()
     {
-        int indexA = vertexIndices.IndexOf(pointA);
-        int indexB = vertexIndices.IndexOf(pointB);
-
-        // Display edge if at least one of the points are on screen
-        if ((indexA != -1) && (indexB != -1))
+        foreach ((Vector2, bool) vertex in displayedVertices)
         {
-            edgePairs.Add((indexA, indexB));
+            if (!vertex.Item2)
+            {
+                DrawCircle(vertex.Item1, HIDDEN_POINT_RADIUS * zoomFactor, RED);
+            }
         }
 
+        foreach ((Vector2, bool) vertex in displayedVertices)
+        {
+            if (vertex.Item2)
+            {
+                DrawCircle(vertex.Item1, POINT_RADIUS * zoomFactor, WHITE);
+            }
+        }
+    }
+
+    public void AddLine(Vector2 edgePointA, Vector2 edgePointB, bool isShown)
+    {
+        displayedEdges.Add((edgePointA, edgePointB, isShown));
         Update();
     }
 
-    private void drawPoints()
+    private void DrawLines()
     {
-        foreach (Vector2 vertex in vertices)
+        foreach ((Vector2, Vector2, bool) edge in displayedEdges)
         {
-            DrawCircle(vertex, POINT_RADIUS, WHITE);
+            if (!edge.Item3)
+            {
+                DrawLine(edge.Item1, edge.Item2, RED, HIDDEN_LINE_WIDTH * zoomFactor);
+            }
+        }
+
+        foreach ((Vector2, Vector2, bool) edge in displayedEdges)
+        {
+            if (edge.Item3)
+            {
+                DrawLine(edge.Item1, edge.Item2, WHITE, LINE_WIDTH * zoomFactor);
+            }
         }
     }
 
-    private void drawLines()
+    public void SetZoomFactor(float zoomFactor)
     {
-        foreach ((int, int) pair in edgePairs)
-        {
-            DrawLine(vertices[pair.Item1], vertices[pair.Item2], WHITE, LINE_WIDTH);
-        }
-    }
-
-    public override void _Draw()
-    {
-        DrawRect(BACKGROUND, GRAY);
-        drawLines();
-        drawPoints();
+        this.zoomFactor = zoomFactor;
+        Background = new Rect2(SCREEN_WIDTH*(1-zoomFactor)/2, SCREEN_HEIGHT*(1-zoomFactor)/2, new Vector2(SCREEN_WIDTH * zoomFactor, SCREEN_HEIGHT * zoomFactor));
     }
 
     public void Reset()
     {
-        vertices.Clear();
-        vertexIndices.Clear();
-        edgePairs.Clear();
+        displayedVertices.Clear();
+        displayedEdges.Clear();
+    }
+
+    public override void _Draw()
+    {
+        GetChild<Camera2D>(0).Zoom = new Vector2(zoomFactor, zoomFactor);
+        DrawRect(Background, GRAY);
+        DrawPoints();
+        DrawLines();
     }
 }

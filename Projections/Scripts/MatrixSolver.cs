@@ -13,7 +13,7 @@ public class MatrixSolver : Node
         //solveMatrix(matrix.GetLength(0), matrix.GetLength(1), matrix);
     }
 
-    private static void swapRows(int columns, double[,] matrix, int rowA, int rowB)
+    private static void SwapRows(int columns, double[,] matrix, int rowA, int rowB)
     {
         double temp = 0;
         for (int col = 0; col < columns; col++)
@@ -24,7 +24,7 @@ public class MatrixSolver : Node
         }
     }
 
-    private static void divideRow(int columns, double[,] matrix, int row, double divisor)
+    private static void DivideRow(int columns, double[,] matrix, int row, double divisor)
     {
         for (int col = 0; col < columns; col++)
         {
@@ -33,7 +33,7 @@ public class MatrixSolver : Node
     }
 
     // Adds coefficient * rowB to rowA
-    private static void addRowMultiple(int columns, double[,] matrix, int rowA, int rowB, double coefficient)
+    private static void AddRowMultiple(int columns, double[,] matrix, int rowA, int rowB, double coefficient)
     {
         for (int col = 0; col < columns; col++)
         {
@@ -42,7 +42,7 @@ public class MatrixSolver : Node
     }
 
     // Takes an augmented matrix to (almost) RREF (with leading entries on the main diagonal) and returns whether it has a unique solution
-    public static bool solveMatrix(int rows, int columns, double[,] matrix, bool augmented)
+    public static bool SolveMatrix(int rows, int columns, double[,] matrix, bool augmented)
     {
         bool isUnique = true;
 
@@ -69,7 +69,7 @@ public class MatrixSolver : Node
             {
                 if (matrix[row, iteration] != 0)
                 {
-                    swapRows(columns, matrix, iteration, row);
+                    SwapRows(columns, matrix, iteration, row);
                     divisible = true;
                     break;
                 }
@@ -79,12 +79,12 @@ public class MatrixSolver : Node
             // Divide row by first entry (if nonzero) and subtract from all rows other than iteration row (with leading 1)
             if (divisible)
             {
-                divideRow(columns, matrix, iteration, matrix[iteration, iteration]);
+                DivideRow(columns, matrix, iteration, matrix[iteration, iteration]);
                 for (int row = 0; row < rows; row++)
                 {
                     if (row != iteration)
                     {
-                        addRowMultiple(columns, matrix, row, iteration, -matrix[row, iteration]);
+                        AddRowMultiple(columns, matrix, row, iteration, -matrix[row, iteration]);
                     }
                 }
             }
@@ -95,7 +95,7 @@ public class MatrixSolver : Node
             // Check nonzero entries on the main diagonal
             for (int coefficientEntry = 0; coefficientEntry < numOfIterations; coefficientEntry++)
             {
-                if ((compareDoubles(matrix[coefficientEntry, coefficientEntry], 0, TOLERANCE)) && (compareDoubles(matrix[coefficientEntry, columns - 1], 0, TOLERANCE)))
+                if ((CompareDoubles(matrix[coefficientEntry, coefficientEntry], 0, TOLERANCE)) && (CompareDoubles(matrix[coefficientEntry, columns - 1], 0, TOLERANCE)))
                 {
                     isUnique = false;
                     break;
@@ -105,7 +105,7 @@ public class MatrixSolver : Node
             // Check for leading entries in constant matrix
             for (int constantEntry = numOfIterations; constantEntry < rows; constantEntry++)
             {
-                if (!compareDoubles(matrix[constantEntry, columns - 1], 0, TOLERANCE))
+                if (!CompareDoubles(matrix[constantEntry, columns - 1], 0, TOLERANCE))
                 {
                     isUnique = false;
                     break;
@@ -117,33 +117,45 @@ public class MatrixSolver : Node
         return isUnique;
     }
 
-    // Compare float with tolerance
-    public static bool compareDoubles(double numA, double numB, double tolerace)
+    // Compare doubles with tolerance
+    public static bool CompareDoubles(double numA, double numB, double tolerance)
     {
-        return (Math.Abs(numA - numB) < tolerace);
+        return (Math.Abs(numA - numB) < tolerance);
     }
 
-    public static void convertTo3x3(Vector3 column1, Vector3 column2, Vector3 column3, double[,] matrix)
+    // Compare Vector3s using tolerance
+    public static bool CompareVector3s(Vector3 vectorA, Vector3 vectorB, double tolerance)
     {
-        matrix[0, 0] = column1.x;
-        matrix[1, 0] = column1.y;
-        matrix[2, 0] = column1.z;
-        matrix[0, 1] = column2.x;
-        matrix[1, 1] = column2.y;
-        matrix[2, 1] = column2.z;
-        matrix[0, 2] = column3.x;
-        matrix[1, 2] = column3.y;
-        matrix[2, 2] = column3.z;
+        return (CompareDoubles(vectorA.x, vectorB.x, tolerance) && CompareDoubles(vectorA.y, vectorB.y, tolerance) && CompareDoubles(vectorA.z, vectorB.z, tolerance));
     }
 
-    public static void addVector3Col(int columnNum, Vector3 column, double[,] matrix)
+    public static void AddVector2Col(int columnNum, Vector2 column, double[,] matrix)
+    {
+        matrix[0, columnNum] = column.x;
+        matrix[1, columnNum] = column.y;
+    }
+
+    public static void ConvertTo2x2(Vector2 column1, Vector2 column2, double[,] matrix)
+    {
+        AddVector2Col(0, column1, matrix);
+        AddVector2Col(1, column2, matrix);
+    }
+
+    public static void AddVector3Col(int columnNum, Vector3 column, double[,] matrix)
     {
         matrix[0, columnNum] = column.x;
         matrix[1, columnNum] = column.y;
         matrix[2, columnNum] = column.z;
     }
 
-    public static void printMatrix(int rows, int columns, double[,] matrix)
+    public static void ConvertTo3x3(Vector3 column1, Vector3 column2, Vector3 column3, double[,] matrix)
+    {
+        AddVector3Col(0, column1, matrix);
+        AddVector3Col(1, column2, matrix);
+        AddVector3Col(2, column3, matrix);
+    }
+
+    public static void PrintMatrix(int rows, int columns, double[,] matrix)
     {
         for (int row = 0; row < rows; row++)
         {

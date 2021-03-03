@@ -1,0 +1,19 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/EGAD_TestObject.obj-d498987ab38d07ae8ed32d70ce7b435e.mesh"
+
+[deps]
+
+files=[ "res://.import/EGAD_TestObject.obj-d498987ab38d07ae8ed32d70ce7b435e.mesh" ]
+
+source_file="res://Assets/EGAD_TestObject.obj"
+dest_files=[ "res://.import/EGAD_TestObject.obj-d498987ab38d07ae8ed32d70ce7b435e.mesh", "res://.import/EGAD_TestObject.obj-d498987ab38d07ae8ed32d70ce7b435e.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh=true

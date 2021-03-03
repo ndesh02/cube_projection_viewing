@@ -1,0 +1,19 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/EGAD_PhoneStand.obj-25be78d19cca7615a8b9fc3d03be9aea.mesh"
+
+[deps]
+
+files=[ "res://.import/EGAD_PhoneStand.obj-25be78d19cca7615a8b9fc3d03be9aea.mesh" ]
+
+source_file="res://Assets/EGAD_PhoneStand.obj"
+dest_files=[ "res://.import/EGAD_PhoneStand.obj-25be78d19cca7615a8b9fc3d03be9aea.mesh", "res://.import/EGAD_PhoneStand.obj-25be78d19cca7615a8b9fc3d03be9aea.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh=true

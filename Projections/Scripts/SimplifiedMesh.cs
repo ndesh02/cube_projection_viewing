@@ -21,46 +21,44 @@ public class SimplifiedMesh
     // Maps from MDT vertex (outside index) to local vertex (stored int values)
     public List<int> mdtToLocalV = new List<int>();
 
-    // Int for current index of local vertex list
-    // Used for populating mdtToLocalV
-    public int currentLocalVertex = 0;
-
-    // Pairs (tuples) of (indices) of vertices that form an edge
+    // Pairs (tuples) of (local) indices of vertices that form an edge
     public List<(int, int)> edgePairs = new List<(int, int)>();
 
     // List of lists for storing the MeshDataTool indices that correspond to a unique edge
     // Maps from local edge (outside index) to MDT edges (values of inside list)
     public List<List<int>> localToMdtE = new List<List<int>>();
 
-    // List of ints for storing which local edge an MDT vertex corresponds to
+    // List of ints for storing which local edge an MDT edge corresponds to
     // Maps from MDT edge (outside index) to local edge (stored int values)
     public List<int> mdtToLocalE = new List<int>();
 
-    // Int for current index of local edge list
-    // Used for populating mdtToLocalE
-    public int currentLocalEdge = 0;
-
-    // List of edges that are not to be displayed as they connect parallel faces
+    // List of (local) indices of edges that are not to be displayed as they connect parallel faces
     public List<int> edgesNotShown = new List<int>();
 
-    // List of edges to display
+    // List of (local) indices of edges to display
     public List<(int, int)> displayedEdges = new List<(int, int)>();
 
     // Constructor taking the reference MeshDataTool as a parameter
     public SimplifiedMesh(MeshDataTool mdt)
     {
-        simplifyPoints(mdt);
-        simplifyLines(mdt);
+        SimplifyPoints(mdt);
+        SimplifyLines(mdt);
     }
 
     // Eliminating duplicate vertices
-    public void simplifyPoints(MeshDataTool mdt)
+    public void SimplifyPoints(MeshDataTool mdt)
     {
-        int index = 0;
+        // Int for current index of local vertex list
+        // Used for populating mdtToLocalV
+        int currentLocalVertex = 0;
+
+        // Loop through each MDT vertex
         for (int vertex = 0; vertex < mdt.GetVertexCount(); vertex++)
         {
-            index = points.IndexOf(mdt.GetVertex(vertex));
+            // Find the local index of the MDT vertex
+            int index = points.IndexOf(mdt.GetVertex(vertex));
 
+            // Depending on whether it was found, add/modify mapping lists
             if (index != -1)
             {
                 localToMdtV[index].Add(vertex);
@@ -76,8 +74,14 @@ public class SimplifiedMesh
         }
     }
 
-    public void simplifyLines(MeshDataTool mdt)
+    // Eliminating duplicate edges
+    public void SimplifyLines(MeshDataTool mdt)
     {
+        // Int for current index of local edge list
+        // Used for populating mdtToLocalE
+        int currentLocalEdge = 0;
+
+
         for (int edge = 0; edge < mdt.GetEdgeCount(); edge++)
         {
             // Finds the local (unique) indices of points that form an edge (so duplicates can be compared)
@@ -111,7 +115,7 @@ public class SimplifiedMesh
                 {
                     indexToAdd = pairAIndex;
                 }
-                else if (pairBIndex != -1)
+                else
                 {
                     indexToAdd = pairBIndex;
                 }
@@ -121,25 +125,28 @@ public class SimplifiedMesh
             }
         }
 
-        findDisplayedEdges(mdt);
+        // Eliminate edges that combine parallel faces
+        FindDisplayedEdges(mdt);
     }
 
-    // Function that find the local indices of edges that are to be displayed (eliminate fictional edges that connect two parallel faces)
-    public void findDisplayedEdges(MeshDataTool mdt)
+    // Function that finds the local indices of edges that are to be displayed (eliminate fictional edges that connect two parallel faces)
+    public void FindDisplayedEdges(MeshDataTool mdt)
     {
         // For loop for running through all unique pairs of faces
         for (int faceA = 0; faceA < mdt.GetFaceCount(); faceA++)
         {
             for (int faceB = (faceA + 1); faceB < mdt.GetFaceCount(); faceB++)
             {
+                // Get normals of faces to find if they are parallel
                 Vector3 faceANomral = mdt.GetFaceNormal(faceA);
                 Vector3 faceBNomral = mdt.GetFaceNormal(faceB);
 
                 // Check if the planes are parallel (have the same normal)
                 // Due to small variations, a tolerance is used to compare normals
-                if (MatrixSolver.compareDoubles(faceANomral.x, faceBNomral.x, TOLERANCE) && MatrixSolver.compareDoubles(faceANomral.y, faceBNomral.y, TOLERANCE) && MatrixSolver.compareDoubles(faceANomral.z, faceBNomral.z, TOLERANCE))
+                if (MatrixSolver.CompareVector3s(faceANomral, faceBNomral, TOLERANCE))
                 {
                     // Check if any of the edges are the same by mapping them from mdt indices to local (unique) indices
+                    // For loop runs through all possible pairings of edges of the two faces
                     for (int edgeA = 0; edgeA < 3; edgeA++)
                     {
                         for (int edgeB = 0; edgeB < 3; edgeB++)
@@ -159,6 +166,7 @@ public class SimplifiedMesh
             }
         }
 
+        // Populate displayedEdges list
         for (int index = 0; index < edgePairs.Count; index++)
         {
             if (!edgesNotShown.Contains(index))
